@@ -296,7 +296,7 @@
             `).join('');
         }
 
-        function startAIPlan() {
+        function startAIPlan() { console.log("clicked"); console.log("tasks:", tasks);
             if (tasks.length > 0) {
                 document.getElementById('taskInput').value = tasks[0].name;
                 setDuration(25);
@@ -370,3 +370,8 @@
     </script>
 </body>
 </html>
+<!-- Debug: -->
+<script>
+console.log('startAIPlan defined:', typeof startAIPlan);
+console.log('tasks:', tasks);
+</script>
