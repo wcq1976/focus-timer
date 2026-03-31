@@ -7,15 +7,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         * { -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
     </style>
 </head>
 <body class="bg-gray-50">
-    <!-- Header -->
     <div class="bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-6 text-white">
         <h1 class="text-xl font-bold">🎯 FocusTimer</h1>
-        
-        <!-- Timer -->
         <div class="flex justify-center my-6">
             <div class="relative w-44 h-44">
                 <svg class="w-full h-full -rotate-90">
@@ -28,15 +24,11 @@
                 </div>
             </div>
         </div>
-
-        <!-- Controls -->
         <div class="flex justify-center gap-3">
             <button id="startBtn" class="bg-white text-indigo-600 px-8 py-3 rounded-full font-bold shadow-lg">开始</button>
             <button id="pauseBtn" class="bg-yellow-500 text-white px-6 py-3 rounded-full font-bold shadow-lg hidden">⏸</button>
             <button id="resetBtn" class="bg-white/20 px-4 py-3 rounded-full">🔄</button>
         </div>
-
-        <!-- Duration -->
         <div class="flex justify-center gap-2 mt-4">
             <button onclick="setDur(15)" class="px-3 py-1 rounded-full bg-white/20 text-xs">15分</button>
             <button onclick="setDur(25)" class="px-3 py-1 rounded-full bg-white font-bold text-xs">25分</button>
@@ -44,7 +36,6 @@
         </div>
     </div>
 
-    <!-- Stats -->
     <div class="px-4 -mt-3 grid grid-cols-3 gap-2">
         <div class="bg-white rounded-xl p-3 text-center shadow-sm">
             <div id="sessions" class="text-2xl font-bold text-indigo-600">0</div>
@@ -60,208 +51,173 @@
         </div>
     </div>
 
-    <!-- AI Section -->
     <div class="px-4 mt-4 space-y-3 pb-8">
         <div class="bg-white rounded-2xl p-4 shadow-sm">
             <h3 class="font-bold text-gray-800 mb-3">🤖 AI 任务规划</h3>
-            <textarea id="taskIn" rows="2" placeholder="输入任务，按回车让AI帮你拆分..." class="w-full p-3 bg-gray-50 rounded-xl text-sm resize-none border-0"></textarea>
-            <button id="aiBtn" class="w-full mt-2 bg-indigo-500 text-white py-3 rounded-xl font-semibold text-sm">
-                🚀 AI 拆分任务
-            </button>
-            <div id="aiResult" class="mt-3 text-sm text-gray-600 hidden"></div>
+            <textarea id="taskIn" rows="2" placeholder="输入任务，让AI帮你拆分..." class="w-full p-3 bg-gray-50 rounded-xl text-sm resize-none border-0"></textarea>
+            <button id="aiBtn" class="w-full mt-2 bg-indigo-500 text-white py-3 rounded-xl font-semibold text-sm">🚀 AI 拆分任务</button>
+            <div id="aiMsg" class="mt-2 text-sm text-center text-gray-500 hidden"></div>
         </div>
 
         <div id="taskArea" class="bg-white rounded-2xl p-4 shadow-sm hidden">
             <h3 class="font-bold text-gray-800 mb-3">📋 任务列表</h3>
             <div id="taskList"></div>
-            <button id="execBtn" class="w-full mt-3 bg-green-500 text-white py-3 rounded-xl font-semibold text-sm">
-                ▶️ 开始执行
-            </button>
+            <button id="execBtn" class="w-full mt-3 bg-green-500 text-white py-3 rounded-xl font-semibold text-sm">▶️ 开始执行</button>
         </div>
 
         <div class="bg-white rounded-2xl p-4 shadow-sm">
             <h3 class="font-bold text-gray-800 mb-3">📈 AI 复盘</h3>
             <div id="review" class="text-sm text-gray-600 min-h-[40px]">完成专注后来看复盘~</div>
-            <button id="reviewBtn" class="w-full mt-2 bg-gray-100 text-gray-700 py-2 rounded-xl text-sm">
-                📝 生成复盘
-            </button>
+            <button id="reviewBtn" class="w-full mt-2 bg-gray-100 text-gray-700 py-2 rounded-xl text-sm">📝 生成复盘</button>
         </div>
     </div>
 
     <script>
-        // MiniMax API via proxy
-        const API_URL = 'https://api.minimax.chat/v1/text/chatcompletion_v2';
-        const API_KEY = 'sk-cp-fl-xznrdSc76n5XGW_JbrFYaRDdmSI7rfUL0x1GFGxGe1gjzU4apdyr-CqOofb_O2mvFLvwrspa7_p7spcPfdPKINoE3P7sTMu_N2BQuzGtl1pDULCj-b8Y';
+    const API_KEY = 'sk-cp-fl-xznrdSc76n5XGW_JbrFYaRDdmSI7rfUL0x1GFGxGe1gjzU4apdyr-CqOofb_O2mvFLvwrspa7_p7spcPfdPKINoE3P7sTMu_N2BQuzGtl1pDULCj-b8Y';
+    let left = 25*60, total = 25*60, timer = null, running = false;
+    let sessions = 0, mins = 0, streak = 0, taskList = [];
 
-        let left = 25*60, total = 25*60, timer = null, running = false;
-        let sessions = 0, mins = 0, streak = 0, taskList = [];
+    const timerEl = document.getElementById('timer');
+    const ringEl = document.getElementById('ring');
+    const startBtn = document.getElementById('startBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const statusEl = document.getElementById('status');
 
-        const timerEl = document.getElementById('timer');
-        const ringEl = document.getElementById('ring');
-        const startBtn = document.getElementById('startBtn');
-        const pauseBtn = document.getElementById('pauseBtn');
-        const statusEl = document.getElementById('status');
+    function update() {
+        const m = Math.floor(left/60), s = left%60;
+        timerEl.textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        ringEl.style.strokeDashoffset = 503 - ((total-left)/total*503);
+    }
 
-        function update() {
-            const m = Math.floor(left/60), s = left%60;
-            timerEl.textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            ringEl.style.strokeDashoffset = 503 - ((total-left)/total*503);
-        }
-
-        function start() {
-            if(running) return;
-            running = true;
-            startBtn.classList.add('hidden');
-            pauseBtn.classList.remove('hidden');
-            statusEl.textContent = '专注中...';
-            timer = setInterval(() => {
-                left--;
-                update();
-                if(left<=0) {
-                    clearInterval(timer);
-                    sessions++;
-                    mins += Math.floor(total/60);
-                    document.getElementById('sessions').textContent = sessions;
-                    document.getElementById('totalMin').textContent = mins;
-                    statusEl.textContent = '🎉 完成！';
-                    save();
-                    alert('🎉 太棒了！休息一下吧~');
-                    reset();
-                }
-            }, 1000);
-        }
-
-        function pause() {
-            clearInterval(timer);
-            running = false;
-            startBtn.classList.remove('hidden');
-            pauseBtn.classList.add('hidden');
-            statusEl.textContent = '已暂停';
-        }
-
-        function reset() {
-            pause();
-            left = total;
+    function start() {
+        if(running) return;
+        running = true;
+        startBtn.classList.add('hidden');
+        pauseBtn.classList.remove('hidden');
+        statusEl.textContent = '专注中...';
+        timer = setInterval(() => {
+            left--;
             update();
-            statusEl.textContent = '准备';
+            if(left<=0) {
+                clearInterval(timer);
+                sessions++;
+                mins += Math.floor(total/60);
+                document.getElementById('sessions').textContent = sessions;
+                document.getElementById('totalMin').textContent = mins;
+                statusEl.textContent = '🎉 完成！';
+                save();
+                alert('🎉 太棒了！休息一下吧~');
+                reset();
+            }
+        }, 1000);
+    }
+
+    function pause() {
+        clearInterval(timer);
+        running = false;
+        startBtn.classList.remove('hidden');
+        pauseBtn.classList.add('hidden');
+        statusEl.textContent = '已暂停';
+    }
+
+    function reset() { pause(); left = total; update(); statusEl.textContent = '准备'; }
+    function setDur(m) { pause(); total = m*60; left = total; update(); statusEl.textContent = '准备'; }
+
+    startBtn.onclick = start;
+    pauseBtn.onclick = pause;
+    document.getElementById('resetBtn').onclick = reset;
+
+    // AI Plan
+    document.getElementById('aiBtn').onclick = async () => {
+        const txt = document.getElementById('taskIn').value.trim();
+        if(!txt) { alert('请输入任务'); return; }
+        const btn = document.getElementById('aiBtn');
+        const msg = document.getElementById('aiMsg');
+        btn.textContent = '🤖 AI 分析中...';
+        btn.disabled = true;
+        msg.textContent = '正在让AI分析任务...';
+        msg.classList.remove('hidden');
+
+        try {
+            const res = await fetch('https://api.minimax.chat/v1/text/chatcompletion_v2', {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + API_KEY, 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model: 'MiniMax-M2.7',
+                    messages: [{ role: 'user', content: `把"${txt}"拆成3-5个小任务，直接返回JSON数组格式["任务1","任务2","任务3"]，不要其他文字` }]
+                })
+            });
+            const data = await res.json();
+            const content = data.choices?.[0]?.message?.content || '';
+            const match = content.match(/\[.*\]/s);
+            
+            if(match) {
+                taskList = JSON.parse(match[0]);
+                const list = document.getElementById('taskList');
+                list.innerHTML = taskList.map((t,i) => 
+                    `<div class="flex items-center gap-2 p-2 bg-gray-50 rounded-lg mb-2">
+                        <span class="w-6 h-6 rounded-full bg-indigo-500 text-white flex items-center justify-center text-sm">${i+1}</span>
+                        <span>${t}</span>
+                    </div>`
+                ).join('');
+                document.getElementById('taskArea').classList.remove('hidden');
+                msg.textContent = '✅ AI已拆分'+taskList.length+'个任务，点击开始执行';
+                msg.classList.remove('hidden');
+            } else {
+                msg.textContent = '❌ 解析失败，请重试';
+                taskList = [{name: txt}];
+            }
+        } catch(e) {
+            msg.textContent = '❌ 网络错误：' + e.message;
+            taskList = [{name: txt}];
         }
 
-        function setDur(m) {
-            pause();
-            total = m*60;
-            left = total;
-            update();
-            statusEl.textContent = '准备';
+        btn.textContent = '🚀 AI 拆分任务';
+        btn.disabled = false;
+    };
+
+    // Execute Plan - THIS IS THE FIX
+    document.getElementById('execBtn').onclick = () => {
+        console.log('execBtn clicked, taskList:', taskList);
+        if(!taskList.length) {
+            alert('请先点击"AI拆分任务"按钮！');
+            return;
         }
+        const taskName = taskList[0]?.name || taskList[0];
+        document.getElementById('taskIn').value = taskName;
+        setDur(25);
+        start();
+    };
 
-        startBtn.onclick = start;
-        pauseBtn.onclick = pause;
-        document.getElementById('resetBtn').onclick = reset;
+    // Review
+    document.getElementById('reviewBtn').onclick = async () => {
+        if(!sessions) { alert('先完成专注吧~'); return; }
+        const el = document.getElementById('review');
+        el.textContent = '🤖 生成中...';
+        try {
+            const res = await fetch('https://api.minimax.chat/v1/text/chatcompletion_v2', {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + API_KEY, 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model: 'MiniMax-M2.7',
+                    messages: [{role:'user',content:`今天${sessions}次专注，共${mins}分钟。给一句中文鼓励，不超过30字`}]
+                })
+            });
+            const data = await res.json();
+            el.textContent = data.choices?.[0]?.message?.content || `📊 今日：${sessions}次，${mins}分钟`;
+        } catch(e) { el.textContent = `📊 今日：${sessions}次，${mins}分钟`; }
+    };
 
-        // AI Plan with better error handling
-        document.getElementById('aiBtn').onclick = async () => {
-            const txt = document.getElementById('taskIn').value.trim();
-            if(!txt) { alert('请输入任务'); return; }
-            const btn = document.getElementById('aiBtn');
-            const result = document.getElementById('aiResult');
-            btn.textContent = '🤖 AI 分析中...';
-            btn.disabled = true;
-            result.classList.add('hidden');
-
-            try {
-                const res = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': 'Bearer ' + API_KEY,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        model: 'MiniMax-M2.7',
-                        messages: [{
-                            role: 'user',
-                            content: `把任务"${txt}"拆成3-5个25分钟的小任务。直接返回一个JSON数组，格式：[“任务1”,“任务2”,“任务3”]，不要其他文字。例如：["收集资料","整理分析","撰写报告"]`
-                        }]
-                    })
-                });
-                
-                const data = await res.json();
-                console.log('API response:', data);
-                
-                let content = data.choices?.[0]?.message?.content || '';
-                
-                // Extract JSON array
-                const match = content.match(/\[.*\]/s);
-                if (match) {
-                    taskList = JSON.parse(match[0]);
-                    showTasks();
-                    result.classList.add('hidden');
-                    document.getElementById('taskArea').classList.remove('hidden');
-                } else {
-                    result.textContent = 'AI解析失败，请重试';
-                    result.classList.remove('hidden');
-                }
-            } catch(e) {
-                console.error(e);
-                result.textContent = '网络错误：' + e.message;
-                result.classList.remove('hidden');
-            }
-
-            btn.textContent = '🚀 AI 拆分任务';
-            btn.disabled = false;
-        };
-
-        function showTasks() {
-            const list = document.getElementById('taskList');
-            list.innerHTML = taskList.map((t,i) => 
-                `<div class="flex items-center gap-2 p-2 bg-gray-50 rounded-lg mb-2">
-                    <span class="w-6 h-6 rounded-full bg-indigo-500 text-white flex items-center justify-center text-sm">${i+1}</span>
-                    <span>${t}</span>
-                </div>`
-            ).join('');
-        }
-
-        document.getElementById('execBtn').onclick = () => {
-            if(taskList.length) {
-                document.getElementById('taskIn').value = taskList[0];
-                setDur(25);
-                start();
-            }
-        };
-
-        document.getElementById('reviewBtn').onclick = async () => {
-            if(!sessions) { alert('先完成专注吧~'); return; }
-            const el = document.getElementById('review');
-            el.textContent = '🤖 生成中...';
-            try {
-                const res = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': 'Bearer ' + API_KEY,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        model: 'MiniMax-M2.7',
-                        messages: [{role:'user',content:`今天${sessions}次专注，共${mins}分钟。给一句中文鼓励和建议，不超过40字`}]
-                    })
-                });
-                const data = await res.json();
-                el.textContent = data.choices?.[0]?.message?.content || `📊 今日：${sessions}次，${mins}分钟`;
-            } catch(e) {
-                el.textContent = `📊 今日：${sessions}次，${mins}分钟`;
-            }
-        };
-
-        // Load
-        const saved = JSON.parse(localStorage.getItem('ft2')||'{}');
-        if(saved.s) sessions=saved.s;
-        if(saved.m) mins=saved.m;
-        if(saved.d!==new Date().toDateString()) streak=(saved.sk||0)+1;
-        else streak=saved.sk||0;
-        document.getElementById('sessions').textContent=sessions;
-        document.getElementById('totalMin').textContent=mins;
-        document.getElementById('streak').textContent=streak;
-        function save(){localStorage.setItem('ft2',JSON.stringify({s:sessions,m:mins,sk:streak,d:new Date().toDateString()}));}
-        update();
+    const saved = JSON.parse(localStorage.getItem('ft3')||'{}');
+    if(saved.s) sessions=saved.s;
+    if(saved.m) mins=saved.m;
+    if(saved.d!==new Date().toDateString()) streak=(saved.sk||0)+1;
+    else streak=saved.sk||0;
+    document.getElementById('sessions').textContent=sessions;
+    document.getElementById('totalMin').textContent=mins;
+    document.getElementById('streak').textContent=streak;
+    function save(){localStorage.setItem('ft3',JSON.stringify({s:sessions,m:mins,sk:streak,d:new Date().toDateString()}));}
+    update();
     </script>
 </body>
 </html>
