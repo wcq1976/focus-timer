@@ -197,7 +197,7 @@
                     method: 'POST',
                     headers: {'Authorization':'Bearer '+API_KEY,'Content-Type':'application/json'},
                     body: JSON.stringify({
-                        model: 'abab6.5-chat',
+                        model: 'MiniMax-M2.7',
                         messages: [{role:'user',content: `把任务"${txt}"拆成3-5个25分钟的小任务，直接返回JSON数组格式["任务1","任务2","任务3"]，不要其他文字`}]
                     })
                 });
@@ -238,7 +238,7 @@
                     method: 'POST',
                     headers: {'Authorization':'Bearer '+API_KEY,'Content-Type':'application/json'},
                     body: JSON.stringify({
-                        model: 'abab6.5-chat',
+                        model: 'MiniMax-M2.7',
                         messages: [{role:'user',content: `复盘：今天${sessions}次专注，共${mins}分钟。给一句中文鼓励和建议，不超过50字`}]
                     })
                 });
