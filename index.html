@@ -3,220 +3,529 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FocusTimer Pro - AI番茄钟</title>
+    <title>FocusTimer Pro - AI 第二大脑</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * { -webkit-tap-highlight-color: transparent; }
+        * { font-family: 'Inter', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+        .ai-btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .ai-btn:hover { background: linear-gradient(135deg, #5a6fd1 0%, #6a4190 100%); }
+        textarea { resize: none; }
+        .tab-active { background: #4f46e5; color: white; }
     </style>
 </head>
-<body class="bg-gray-50">
-    <div class="bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-6 text-white">
-        <h1 class="text-xl font-bold">🎯 FocusTimer</h1>
-        <div class="flex justify-center my-6">
-            <div class="relative w-44 h-44">
-                <svg class="w-full h-full -rotate-90">
-                    <circle cx="88" cy="88" r="80" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="10"/>
-                    <circle id="ring" cx="88" cy="88" r="80" fill="none" stroke="white" stroke-width="10" stroke-dasharray="503" stroke-dashoffset="0" stroke-linecap="round"/>
-                </svg>
-                <div class="absolute inset-0 flex flex-col items-center justify-center">
-                    <div id="timer" class="text-5xl font-bold font-mono">25:00</div>
-                    <div id="status" class="text-xs opacity-70">准备</div>
+<body class="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 min-h-screen text-white">
+    <div id="apiModal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-md w-full text-gray-800">
+            <h2 class="text-xl font-bold mb-2">🔑 设置 MiniMax API Key</h2>
+            <p class="text-sm text-gray-500 mb-4">你的API Key仅存储在本地浏览器中</p>
+            <input type="password" id="apiKeyInput" placeholder="输入 MiniMax API Key" class="w-full p-3 border rounded-xl mb-3 text-sm">
+            <div class="text-xs text-gray-400 mb-4">模型：MiniMax-M2.7</div>
+            <button onclick="saveApiKey()" class="w-full bg-indigo-500 text-white py-3 rounded-xl font-semibold">保存并开始使用</button>
+        </div>
+    </div>
+
+    <div class="px-4 pt-6 pb-4">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h1 class="text-2xl font-bold">🧠 AI 第二大脑</h1>
+                <p class="text-purple-300 text-sm">你的思考伙伴</p>
+            </div>
+            <button onclick="showSettings()" class="p-2 rounded-full bg-white/10 hover:bg-white/20">⚙️</button>
+        </div>
+        <div class="flex gap-2 overflow-x-auto pb-2">
+            <button onclick="switchTab('timer')" class="tab-btn tab-active px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" data-tab="timer">🍅 番茄钟</button>
+            <button onclick="switchTab('dump')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white/10" data-tab="dump">1️⃣ 大脑转储</button>
+            <button onclick="switchTab('meeting')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white/10" data-tab="meeting">2️⃣ 会议总结</button>
+            <button onclick="switchTab('connector')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white/10" data-tab="connector">3️⃣ 想法连接</button>
+            <button onclick="switchTab('weekly')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white/10" data-tab="weekly">4️⃣ 周回顾</button>
+            <button onclick="switchTab('research')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white/10" data-tab="research">5️⃣ 研究压缩</button>
+            <button onclick="switchTab('decision')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white/10" data-tab="decision">6️⃣ 决策澄清</button>
+            <button onclick="switchTab('project')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white/10" data-tab="project">7️⃣ 项目大脑</button>
+            <button onclick="switchTab('reading')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white/10" data-tab="reading">8️⃣ 阅读综合</button>
+            <button onclick="switchTab('incubator')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white/10" data-tab="incubator">9️⃣ 想法孵化</button>
+            <button onclick="switchTab('memory')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white/10" data-tab="memory">🔟 记忆锚点</button>
+        </div>
+    </div>
+
+    <div class="px-4 pb-8">
+        <div id="tab-timer" class="tab-content">
+            <div class="bg-white/10 backdrop-blur rounded-2xl p-6">
+                <div class="flex justify-center my-6">
+                    <div class="relative w-44 h-44">
+                        <svg class="w-full h-full -rotate-90">
+                            <circle cx="88" cy="88" r="80" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="10"/>
+                            <circle id="ring" cx="88" cy="88" r="80" fill="none" stroke="#a855f7" stroke-width="10" stroke-dasharray="503" stroke-dashoffset="0" stroke-linecap="round"/>
+                        </svg>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <div id="timer" class="text-5xl font-bold font-mono">25:00</div>
+                            <div id="status" class="text-xs text-purple-300">准备</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-center gap-3">
+                    <button id="startBtn" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-3 rounded-full font-bold shadow-lg">开始</button>
+                    <button id="pauseBtn" class="bg-yellow-500 text-white px-6 py-3 rounded-full font-bold shadow-lg hidden">⏸</button>
+                    <button id="resetBtn" class="bg-white/20 px-4 py-3 rounded-full">🔄</button>
+                </div>
+                <div class="flex justify-center gap-2 mt-4">
+                    <button onclick="setDur(15)" class="px-3 py-1 rounded-full bg-white/20 text-xs">15分</button>
+                    <button onclick="setDur(25)" class="px-3 py-1 rounded-full bg-purple-500 font-bold text-xs">25分</button>
+                    <button onclick="setDur(45)" class="px-3 py-1 rounded-full bg-white/20 text-xs">45分</button>
                 </div>
             </div>
-        </div>
-        <div class="flex justify-center gap-3">
-            <button id="startBtn" class="bg-white text-indigo-600 px-8 py-3 rounded-full font-bold shadow-lg">开始</button>
-            <button id="pauseBtn" class="bg-yellow-500 text-white px-6 py-3 rounded-full font-bold shadow-lg hidden">⏸</button>
-            <button id="resetBtn" class="bg-white/20 px-4 py-3 rounded-full">🔄</button>
-        </div>
-        <div class="flex justify-center gap-2 mt-4">
-            <button onclick="setDur(15)" class="px-3 py-1 rounded-full bg-white/20 text-xs">15分</button>
-            <button onclick="setDur(25)" class="px-3 py-1 rounded-full bg-white font-bold text-xs">25分</button>
-            <button onclick="setDur(45)" class="px-3 py-1 rounded-full bg-white/20 text-xs">45分</button>
-        </div>
-    </div>
-
-    <div class="px-4 -mt-3 grid grid-cols-3 gap-2">
-        <div class="bg-white rounded-xl p-3 text-center shadow-sm">
-            <div id="sessions" class="text-2xl font-bold text-indigo-600">0</div>
-            <div class="text-xs text-gray-500">次数</div>
-        </div>
-        <div class="bg-white rounded-xl p-3 text-center shadow-sm">
-            <div id="totalMin" class="text-2xl font-bold text-green-600">0</div>
-            <div class="text-xs text-gray-500">分钟</div>
-        </div>
-        <div class="bg-white rounded-xl p-3 text-center shadow-sm">
-            <div id="streak" class="text-2xl font-bold text-orange-500">0</div>
-            <div class="text-xs text-gray-500">🔥 天</div>
-        </div>
-    </div>
-
-    <div class="px-4 mt-4 space-y-3 pb-8">
-        <div class="bg-white rounded-2xl p-4 shadow-sm">
-            <h3 class="font-bold text-gray-800 mb-3">🤖 AI 任务规划</h3>
-            <textarea id="taskIn" rows="2" placeholder="输入任务，让AI帮你拆分..." class="w-full p-3 bg-gray-50 rounded-xl text-sm resize-none border-0"></textarea>
-            <button id="aiBtn" class="w-full mt-2 bg-indigo-500 text-white py-3 rounded-xl font-semibold text-sm">🚀 AI 拆分任务</button>
-            <div id="aiMsg" class="mt-2 text-sm text-center text-gray-500 hidden"></div>
+            <div class="grid grid-cols-3 gap-2 mt-4">
+                <div class="bg-white/10 rounded-xl p-3 text-center"><div id="sessions" class="text-2xl font-bold text-purple-400">0</div><div class="text-xs text-gray-400">次数</div></div>
+                <div class="bg-white/10 rounded-xl p-3 text-center"><div id="totalMin" class="text-2xl font-bold text-green-400">0</div><div class="text-xs text-gray-400">分钟</div></div>
+                <div class="bg-white/10 rounded-xl p-3 text-center"><div id="streak" class="text-2xl font-bold text-orange-400">0</div><div class="text-xs text-gray-400">🔥 天</div></div>
+            </div>
+            <div class="bg-white/10 backdrop-blur rounded-2xl p-4 mt-4">
+                <h3 class="font-bold text-purple-300 mb-3">🤖 AI 任务规划</h3>
+                <textarea id="taskIn" rows="2" placeholder="输入任务，让AI帮你拆分..." class="w-full p-3 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400"></textarea>
+                <button id="aiBtn" onclick="aiSplitTask()" class="w-full mt-2 ai-btn text-white py-3 rounded-xl font-semibold text-sm">🚀 AI 拆分任务</button>
+                <div id="aiMsg" class="mt-2 text-sm text-center text-gray-400 hidden"></div>
+            </div>
+            <div id="taskArea" class="bg-white/10 backdrop-blur rounded-2xl p-4 mt-4 hidden">
+                <h3 class="font-bold text-purple-300 mb-3">📋 任务列表</h3>
+                <div id="taskList"></div>
+                <button id="execBtn" onclick="execTask()" class="w-full mt-3 bg-green-500 text-white py-3 rounded-xl font-semibold text-sm">▶️ 开始执行</button>
+            </div>
+            <div class="bg-white/10 backdrop-blur rounded-2xl p-4 mt-4">
+                <h3 class="font-bold text-purple-300 mb-3">📈 AI 复盘</h3>
+                <div id="review" class="text-sm text-gray-300 min-h-[40px]">完成专注后来看复盘~</div>
+                <button onclick="aiReview()" class="w-full mt-2 bg-white/20 text-white py-2 rounded-xl text-sm">📝 生成复盘</button>
+            </div>
         </div>
 
-        <div id="taskArea" class="bg-white rounded-2xl p-4 shadow-sm hidden">
-            <h3 class="font-bold text-gray-800 mb-3">📋 任务列表</h3>
-            <div id="taskList"></div>
-            <button id="execBtn" class="w-full mt-3 bg-green-500 text-white py-3 rounded-xl font-semibold text-sm">▶️ 开始执行</button>
+        <div id="tab-dump" class="tab-content hidden">
+            <div class="bg-white/10 backdrop-blur rounded-2xl p-5">
+                <div class="flex items-center gap-3 mb-4"><span class="text-3xl">🧠</span><div><h2 class="font-bold text-lg">大脑转储处理器</h2><p class="text-xs text-gray-400">把脑中一切倾倒出来，AI帮你分类整理</p></div></div>
+                <textarea id="dump-input" rows="6" placeholder="把脑子里的一切都写下来——想法、任务、担忧、碎片化思考。不要判断或过滤。" class="w-full p-4 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400"></textarea>
+                <button onclick="aiBrainDump()" class="w-full mt-3 ai-btn text-white py-3 rounded-xl font-semibold text-sm">🧠 开始转储</button>
+                <div id="dump-output" class="mt-4 p-4 bg-white/5 rounded-xl hidden"><div id="dump-result" class="text-sm whitespace-pre-wrap"></div></div>
+            </div>
         </div>
 
-        <div class="bg-white rounded-2xl p-4 shadow-sm">
-            <h3 class="font-bold text-gray-800 mb-3">📈 AI 复盘</h3>
-            <div id="review" class="text-sm text-gray-600 min-h-[40px]">完成专注后来看复盘~</div>
-            <button id="reviewBtn" class="w-full mt-2 bg-gray-100 text-gray-700 py-2 rounded-xl text-sm">📝 生成复盘</button>
+        <div id="tab-meeting" class="tab-content hidden">
+            <div class="bg-white/10 backdrop-blur rounded-2xl p-5">
+                <div class="flex items-center gap-3 mb-4"><span class="text-3xl">📝</span><div><h2 class="font-bold text-lg">会议总结器</h2><p class="text-xs text-gray-400">提取关键决策、负责人和开放问题</p></div></div>
+                <textarea id="meeting-input" rows="6" placeholder="粘贴会议原始笔记..." class="w-full p-4 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400"></textarea>
+                <button onclick="aiMeetingSummary()" class="w-full mt-3 ai-btn text-white py-3 rounded-xl font-semibold text-sm">📝 生成总结</button>
+                <div id="meeting-output" class="mt-4 p-4 bg-white/5 rounded-xl hidden"><div id="meeting-result" class="text-sm whitespace-pre-wrap"></div></div>
+            </div>
+        </div>
+
+        <div id="tab-connector" class="tab-content hidden">
+            <div class="bg-white/10 backdrop-blur rounded-2xl p-5">
+                <div class="flex items-center gap-3 mb-4"><span class="text-3xl">🔗</span><div><h2 class="font-bold text-lg">想法连接器</h2><p class="text-xs text-gray-400">发现独立想法之间的隐藏联系</p></div></div>
+                <textarea id="idea1-input" rows="2" placeholder="想法 1..." class="w-full p-3 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400 mb-2"></textarea>
+                <textarea id="idea2-input" rows="2" placeholder="想法 2..." class="w-full p-3 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400 mb-2"></textarea>
+                <textarea id="idea3-input" rows="2" placeholder="想法 3..." class="w-full p-3 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400"></textarea>
+                <button onclick="aiConnectIdeas()" class="w-full mt-3 ai-btn text-white py-3 rounded-xl font-semibold text-sm">🔗 寻找联系</button>
+                <div id="connector-output" class="mt-4 p-4 bg-white/5 rounded-xl hidden"><div id="connector-result" class="text-sm whitespace-pre-wrap"></div></div>
+            </div>
+        </div>
+
+        <div id="tab-weekly" class="tab-content hidden">
+            <div class="bg-white/10 backdrop-blur rounded-2xl p-5">
+                <div class="flex items-center gap-3 mb-4"><span class="text-3xl">📅</span><div><h2 class="font-bold text-lg">周回顾构建器</h2><p class="text-xs text-gray-400">引导式自我反思</p></div></div>
+                <div id="weekly-progress" class="text-sm text-purple-400 mb-3">问题 1 / 10</div>
+                <div id="weekly-question" class="text-lg font-medium mb-4">点击开始</div>
+                <textarea id="weekly-input" rows="3" placeholder="在这里输入你的回答..." class="w-full p-3 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400 mb-3"></textarea>
+                <div class="flex gap-2">
+                    <button id="weekly-start-btn" onclick="startWeeklyReview()" class="flex-1 ai-btn text-white py-3 rounded-xl font-semibold text-sm">🚀 开始回顾</button>
+                    <button id="weekly-next-btn" onclick="nextWeeklyQuestion()" class="flex-1 bg-green-500 text-white py-3 rounded-xl font-semibold text-sm hidden">下一题 →</button>
+                </div>
+                <div id="weekly-summary" class="mt-4 p-4 bg-white/5 rounded-xl hidden"><div id="weekly-result" class="text-sm whitespace-pre-wrap"></div></div>
+            </div>
+        </div>
+
+        <div id="tab-research" class="tab-content hidden">
+            <div class="bg-white/10 backdrop-blur rounded-2xl p-5">
+                <div class="flex items-center gap-3 mb-4"><span class="text-3xl">🔬</span><div><h2 class="font-bold text-lg">研究压缩器</h2><p class="text-xs text-gray-400">把大量研究压缩为精华</p></div></div>
+                <input id="research-topic" type="text" placeholder="研究主题..." class="w-full p-3 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400 mb-2">
+                <textarea id="research-input" rows="6" placeholder="粘贴原始笔记/链接/重点..." class="w-full p-4 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400"></textarea>
+                <button onclick="aiCompressResearch()" class="w-full mt-3 ai-btn text-white py-3 rounded-xl font-semibold text-sm">🔬 压缩研究</button>
+                <div id="research-output" class="mt-4 p-4 bg-white/5 rounded-xl hidden"><div id="research-result" class="text-sm whitespace-pre-wrap"></div></div>
+            </div>
+        </div>
+
+        <div id="tab-decision" class="tab-content hidden">
+            <div class="bg-white/10 backdrop-blur rounded-2xl p-5">
+                <div class="flex items-center gap-3 mb-4"><span class="text-3xl">⚖️</span><div><h2 class="font-bold text-lg">决策澄清器</h2><p class="text-xs text-gray-400">区分事实与假设，明确恐惧与需求</p></div></div>
+                <input id="decision-input" type="text" placeholder="我需要决定..." class="w-full p-3 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400 mb-3">
+                <textarea id="decision-thoughts" rows="4" placeholder="把所有混乱的想法写下来..." class="w-full p-4 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400"></textarea>
+                <button onclick="aiClarifyDecision()" class="w-full mt-3 ai-btn text-white py-3 rounded-xl font-semibold text-sm">⚖️ 澄清决策</button>
+                <div id="decision-output" class="mt-4 p-4 bg-white/5 rounded-xl hidden"><div id="decision-result" class="text-sm whitespace-pre-wrap"></div></div>
+            </div>
+        </div>
+
+        <div id="tab-project" class="tab-content hidden">
+            <div class="bg-white/10 backdrop-blur rounded-2xl p-5">
+                <div class="flex items-center gap-3 mb-4"><span class="text-3xl">🚀</span><div><h2 class="font-bold text-lg">项目大脑</h2><p class="text-xs text-gray-400">建立活文档</p></div></div>
+                <input id="project-name" type="text" placeholder="项目名称..." class="w-full p-3 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400 mb-2">
+                <textarea id="project-input" rows="6" placeholder="目前掌握的一切..." class="w-full p-4 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400"></textarea>
+                <button onclick="aiProjectBrain()" class="w-full mt-3 ai-btn text-white py-3 rounded-xl font-semibold text-sm">🚀 分析项目</button>
+                <div id="project-output" class="mt-4 p-4 bg-white/5 rounded-xl hidden"><div id="project-result" class="text-sm whitespace-pre-wrap"></div></div>
+            </div>
+        </div>
+
+        <div id="tab-reading" class="tab-content hidden">
+            <div class="bg-white/10 backdrop-blur rounded-2xl p-5">
+                <div class="flex items-center gap-3 mb-4"><span class="text-3xl">📚</span><div><h2 class="font-bold text-lg">阅读综合器</h2><p class="text-xs text-gray-400">从重点中提取洞见</p></div></div>
+                <input id="reading-source" type="text" placeholder="书籍/文章名称..." class="w-full p-3 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400 mb-2">
+                <textarea id="reading-input" rows="6" placeholder="粘贴重点..." class="w-full p-4 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400"></textarea>
+                <button onclick="aiSynthesizeReading()" class="w-full mt-3 ai-btn text-white py-3 rounded-xl font-semibold text-sm">📚 综合分析</button>
+                <div id="reading-output" class="mt-4 p-4 bg-white/5 rounded-xl hidden"><div id="reading-result" class="text-sm whitespace-pre-wrap"></div></div>
+            </div>
+        </div>
+
+        <div id="tab-incubator" class="tab-content hidden">
+            <div class="bg-white/10 backdrop-blur rounded-2xl p-5">
+                <div class="flex items-center gap-3 mb-4"><span class="text-3xl">💡</span><div><h2 class="font-bold text-lg">想法孵化器</h2><p class="text-xs text-gray-400">深度追问，判断是否值得追进</p></div></div>
+                <textarea id="incubator-input" rows="4" placeholder="描述你的粗糙想法..." class="w-full p-4 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400"></textarea>
+                <button onclick="aiIncubateIdea()" class="w-full mt-3 ai-btn text-white py-3 rounded-xl font-semibold text-sm">💡 深度追问</button>
+                <div id="incubator-output" class="mt-4 p-4 bg-white/5 rounded-xl hidden"><div id="incubator-result" class="text-sm whitespace-pre-wrap"></div></div>
+            </div>
+        </div>
+
+        <div id="tab-memory" class="tab-content hidden">
+            <div class="bg-white/10 backdrop-blur rounded-2xl p-5">
+                <div class="flex items-center gap-3 mb-4"><span class="text-3xl">⚓</span><div><h2 class="font-bold text-lg">记忆锚点</h2><p class="text-xs text-gray-400">永久记住学到的概念</p></div></div>
+                <input id="memory-concept" type="text" placeholder="学到的概念/技能/洞见..." class="w-full p-3 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400 mb-3">
+                <textarea id="memory-input" rows="4" placeholder="关于它的笔记..." class="w-full p-4 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400"></textarea>
+                <button onclick="aiCreateMemoryAnchor()" class="w-full mt-3 ai-btn text-white py-3 rounded-xl font-semibold text-sm">⚓ 创建记忆锚点</button>
+                <div id="memory-output" class="mt-4 p-4 bg-white/5 rounded-xl hidden"><div id="memory-result" class="text-sm whitespace-pre-wrap"></div></div>
+            </div>
         </div>
     </div>
 
     <script>
-    const API_KEY = 'sk-cp-fl-xznrdSc76n5XGW_JbrFYaRDdmSI7rfUL0x1GFGxGe1gjzU4apdyr-CqOofb_O2mvFLvwrspa7_p7spcPfdPKINoE3P7sTMu_N2BQuzGtl1pDULCj-b8Y';
+    const API_URL = "https://api.minimax.chat/v1/text/chatcompletion_v2";
+    let API_KEY = localStorage.getItem("minimax_api_key") || "";
+    const MODEL = "MiniMax-M2.7";
+
+    if (!API_KEY) document.getElementById("apiModal").classList.remove("hidden");
+
+    function saveApiKey() {
+        const key = document.getElementById("apiKeyInput").value.trim();
+        if (!key) { alert("请输入 API Key"); return; }
+        API_KEY = key;
+        localStorage.setItem("minimax_api_key", key);
+        document.getElementById("apiModal").classList.add("hidden");
+    }
+
+    function showSettings() {
+        document.getElementById("apiKeyInput").value = API_KEY;
+        document.getElementById("apiModal").classList.remove("hidden");
+    }
+
+    async function callAI(messages) {
+        if (!API_KEY) { document.getElementById("apiModal").classList.remove("hidden"); throw new Error("需要设置 API Key"); }
+        const res = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Authorization": "Bearer " + API_KEY, "Content-Type": "application/json" },
+            body: JSON.stringify({ model: MODEL, messages })
+        });
+        if (!res.ok) { throw new Error("API错误 " + res.status); }
+        const data = await res.json();
+        return data.choices?.[0]?.message?.content || "";
+    }
+
+    function switchTab(tabName) {
+        document.querySelectorAll(".tab-content").forEach(el => el.classList.add("hidden"));
+        document.querySelectorAll(".tab-btn").forEach(el => { el.classList.remove("tab-active"); el.classList.add("bg-white/10"); });
+        document.getElementById("tab-" + tabName).classList.remove("hidden");
+        const activeBtn = document.querySelector("[data-tab='" + tabName + "']");
+        if (activeBtn) { activeBtn.classList.add("tab-active"); activeBtn.classList.remove("bg-white/10"); }
+    }
+
     let left = 25*60, total = 25*60, timer = null, running = false;
     let sessions = 0, mins = 0, streak = 0, taskList = [];
-
-    const timerEl = document.getElementById('timer');
-    const ringEl = document.getElementById('ring');
-    const startBtn = document.getElementById('startBtn');
-    const pauseBtn = document.getElementById('pauseBtn');
-    const statusEl = document.getElementById('status');
+    const timerEl = document.getElementById("timer"), ringEl = document.getElementById("ring");
+    const startBtn = document.getElementById("startBtn"), pauseBtn = document.getElementById("pauseBtn"), statusEl = document.getElementById("status");
 
     function update() {
         const m = Math.floor(left/60), s = left%60;
-        timerEl.textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        timerEl.textContent = m.toString().padStart(2,"0") + ":" + s.toString().padStart(2,"0");
         ringEl.style.strokeDashoffset = 503 - ((total-left)/total*503);
     }
-
     function start() {
         if(running) return;
-        running = true;
-        startBtn.classList.add('hidden');
-        pauseBtn.classList.remove('hidden');
-        statusEl.textContent = '专注中...';
+        running = true; startBtn.classList.add("hidden"); pauseBtn.classList.remove("hidden"); statusEl.textContent = "专注中...";
         timer = setInterval(() => {
-            left--;
-            update();
+            left--; update();
             if(left<=0) {
-                clearInterval(timer);
-                sessions++;
-                mins += Math.floor(total/60);
-                document.getElementById('sessions').textContent = sessions;
-                document.getElementById('totalMin').textContent = mins;
-                statusEl.textContent = '🎉 完成！';
-                save();
-                alert('🎉 太棒了！休息一下吧~');
-                reset();
+                clearInterval(timer); sessions++; mins += Math.floor(total/60);
+                document.getElementById("sessions").textContent = sessions;
+                document.getElementById("totalMin").textContent = mins;
+                statusEl.textContent = "🎉 完成！"; save();
+                alert("🎉 太棒了！休息一下吧~"); reset();
             }
         }, 1000);
     }
+    function pause() { clearInterval(timer); running = false; startBtn.classList.remove("hidden"); pauseBtn.classList.add("hidden"); statusEl.textContent = "已暂停"; }
+    function reset() { pause(); left = total; update(); statusEl.textContent = "准备"; }
+    function setDur(m) { pause(); total = m*60; left = total; update(); statusEl.textContent = "准备"; }
+    startBtn.onclick = start; pauseBtn.onclick = pause; document.getElementById("resetBtn").onclick = reset;
 
-    function pause() {
-        clearInterval(timer);
-        running = false;
-        startBtn.classList.remove('hidden');
-        pauseBtn.classList.add('hidden');
-        statusEl.textContent = '已暂停';
+    async function aiSplitTask() {
+        const txt = document.getElementById("taskIn").value.trim();
+        if (!txt) { alert("请输入任务"); return; }
+        const btn = document.getElementById("aiBtn"), msg = document.getElementById("aiMsg");
+        btn.disabled = true; btn.textContent = "🤖 AI分析中..."; msg.textContent = "正在分析..."; msg.classList.remove("hidden");
+        try {
+            const content = await callAI([{ role: "user", content: "把"" + txt + ""拆成3-5个小任务，直接返回JSON数组格式["任务1","任务2","任务3"]，不要其他文字" }]);
+            const match = content.match(/[.*]/s);
+            if (match) {
+                taskList = JSON.parse(match[0]);
+                const list = document.getElementById("taskList");
+                list.innerHTML = taskList.map((t, i) => "<div class="flex items-center gap-2 p-2 bg-white/10 rounded-lg mb-2"><span class="w-6 h-6 rounded-full bg-purple-500 text-white flex items-center justify-center text-sm">" + (i+1) + "</span><span class="text-sm">" + t + "</span></div>").join("");
+                document.getElementById("taskArea").classList.remove("hidden");
+                msg.textContent = "✅ AI已拆分" + taskList.length + "个任务";
+            } else { msg.textContent = "❌ 解析失败"; taskList = [{ name: txt }]; }
+        } catch(e) { msg.textContent = "❌ 错误：" + e.message; taskList = [{ name: txt }]; }
+        btn.disabled = false; btn.textContent = "🚀 AI 拆分任务";
     }
 
-    function reset() { pause(); left = total; update(); statusEl.textContent = '准备'; }
-    function setDur(m) { pause(); total = m*60; left = total; update(); statusEl.textContent = '准备'; }
-
-    startBtn.onclick = start;
-    pauseBtn.onclick = pause;
-    document.getElementById('resetBtn').onclick = reset;
-
-    // AI Plan
-    document.getElementById('aiBtn').onclick = async () => {
-        const txt = document.getElementById('taskIn').value.trim();
-        if(!txt) { alert('请输入任务'); return; }
-        const btn = document.getElementById('aiBtn');
-        const msg = document.getElementById('aiMsg');
-        btn.textContent = '🤖 AI 分析中...';
-        btn.disabled = true;
-        msg.textContent = '正在让AI分析任务...';
-        msg.classList.remove('hidden');
-
-        try {
-            const res = await fetch('https://api.minimax.chat/v1/text/chatcompletion_v2', {
-                method: 'POST',
-                headers: { 'Authorization': 'Bearer ' + API_KEY, 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    model: 'MiniMax-M2.7',
-                    messages: [{ role: 'user', content: `把"${txt}"拆成3-5个小任务，直接返回JSON数组格式["任务1","任务2","任务3"]，不要其他文字` }]
-                })
-            });
-            const data = await res.json();
-            const content = data.choices?.[0]?.message?.content || '';
-            const match = content.match(/\[.*\]/s);
-            
-            if(match) {
-                taskList = JSON.parse(match[0]);
-                const list = document.getElementById('taskList');
-                list.innerHTML = taskList.map((t,i) => 
-                    `<div class="flex items-center gap-2 p-2 bg-gray-50 rounded-lg mb-2">
-                        <span class="w-6 h-6 rounded-full bg-indigo-500 text-white flex items-center justify-center text-sm">${i+1}</span>
-                        <span>${t}</span>
-                    </div>`
-                ).join('');
-                document.getElementById('taskArea').classList.remove('hidden');
-                msg.textContent = '✅ AI已拆分'+taskList.length+'个任务，点击开始执行';
-                msg.classList.remove('hidden');
-            } else {
-                msg.textContent = '❌ 解析失败，请重试';
-                taskList = [{name: txt}];
-            }
-        } catch(e) {
-            msg.textContent = '❌ 网络错误：' + e.message;
-            taskList = [{name: txt}];
-        }
-
-        btn.textContent = '🚀 AI 拆分任务';
-        btn.disabled = false;
-    };
-
-    // Execute Plan - THIS IS THE FIX
-    document.getElementById('execBtn').onclick = () => {
-        console.log('execBtn clicked, taskList:', taskList);
-        if(!taskList.length) {
-            alert('请先点击"AI拆分任务"按钮！');
-            return;
-        }
+    function execTask() {
+        if (!taskList.length) { alert("请先点击"AI拆分任务"按钮！"); return; }
         const taskName = taskList[0]?.name || taskList[0];
-        document.getElementById('taskIn').value = taskName;
-        setDur(25);
-        start();
-    };
+        document.getElementById("taskIn").value = taskName;
+        setDur(25); start();
+    }
 
-    // Review
-    document.getElementById('reviewBtn').onclick = async () => {
-        if(!sessions) { alert('先完成专注吧~'); return; }
-        const el = document.getElementById('review');
-        el.textContent = '🤖 生成中...';
+    async function aiReview() {
+        if (!sessions) { alert("先完成专注吧~"); return; }
+        const el = document.getElementById("review"); el.textContent = "🤖 生成中...";
+        try { const content = await callAI([{ role: "user", content: "今天" + sessions + "次专注，共" + mins + "分钟。给一句中文鼓励，不超过30字" }]); el.textContent = content; }
+        catch(e) { el.textContent = "📊 今日：" + sessions + "次，" + mins + "分钟"; }
+    }
+
+    async function aiBrainDump() {
+        const input = document.getElementById("dump-input").value.trim();
+        if (!input) { alert("请输入内容"); return; }
+        const btn = event.target, outputEl = document.getElementById("dump-output"), resultEl = document.getElementById("dump-result");
+        btn.disabled = true; btn.textContent = "🤖 处理中..."; outputEl.classList.add("hidden");
         try {
-            const res = await fetch('https://api.minimax.chat/v1/text/chatcompletion_v2', {
-                method: 'POST',
-                headers: { 'Authorization': 'Bearer ' + API_KEY, 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    model: 'MiniMax-M2.7',
-                    messages: [{role:'user',content:`今天${sessions}次专注，共${mins}分钟。给一句中文鼓励，不超过30字`}]
-                })
-            });
-            const data = await res.json();
-            el.textContent = data.choices?.[0]?.message?.content || `📊 今日：${sessions}次，${mins}分钟`;
-        } catch(e) { el.textContent = `📊 今日：${sessions}次，${mins}分钟`; }
-    };
+            const content = await callAI([{ role: "user", content: "以下是我脑子里的所有想法：
 
-    const saved = JSON.parse(localStorage.getItem('ft3')||'{}');
+" + input + "
+
+请分类为：
+1. 🔴 需要立即行动的
+2. 🟡 需要深思的
+3. 🟢 可以完全放下的
+
+用【行动】【思考】【放下】标记每条。" }]);
+            outputEl.classList.remove("hidden"); resultEl.textContent = content;
+        } catch(e) { outputEl.classList.remove("hidden"); resultEl.textContent = "❌ 错误：" + e.message; }
+        btn.disabled = false; btn.textContent = "🧠 开始转储";
+    }
+
+    async function aiMeetingSummary() {
+        const input = document.getElementById("meeting-input").value.trim();
+        if (!input) { alert("请输入会议笔记"); return; }
+        const btn = event.target, outputEl = document.getElementById("meeting-output"), resultEl = document.getElementById("meeting-result");
+        btn.disabled = true; btn.textContent = "🤖 处理中..."; outputEl.classList.add("hidden");
+        try {
+            const content = await callAI([{ role: "user", content: "这是我的会议原始笔记：
+
+" + input + "
+
+请提取：
+- ✅ 关键决策
+- 👤 负责人
+- ❓ 开放问题
+- 📌 易遗忘事项
+
+格式化以便粘贴到Notion。" }]);
+            outputEl.classList.remove("hidden"); resultEl.textContent = content;
+        } catch(e) { outputEl.classList.remove("hidden"); resultEl.textContent = "❌ 错误：" + e.message; }
+        btn.disabled = false; btn.textContent = "📝 生成总结";
+    }
+
+    async function aiConnectIdeas() {
+        const idea1 = document.getElementById("idea1-input").value.trim();
+        const idea2 = document.getElementById("idea2-input").value.trim();
+        const idea3 = document.getElementById("idea3-input").value.trim();
+        if (!idea1 && !idea2 && !idea3) { alert("请至少输入一个想法"); return; }
+        const btn = event.target, outputEl = document.getElementById("connector-output"), resultEl = document.getElementById("connector-result");
+        btn.disabled = true; btn.textContent = "🤖 分析中..."; outputEl.classList.add("hidden");
+        try {
+            const content = await callAI([{ role: "user", content: "我思考这几个想法：
+
+想法1：" + idea1 + "
+想法2：" + idea2 + "
+想法3：" + idea3 + "
+
+找出隐藏联系，告诉我是否指向更大洞见。" }]);
+            outputEl.classList.remove("hidden"); resultEl.textContent = content;
+        } catch(e) { outputEl.classList.remove("hidden"); resultEl.textContent = "❌ 错误：" + e.message; }
+        btn.disabled = false; btn.textContent = "🔗 寻找联系";
+    }
+
+    const weeklyQuestions = ["这周最大的成就是什么？","这周最让你满足的一件事是什么？","这周你逃避了什么？","这周什么最消耗精力？","这周学到最重要的是什么？","如果可以重来，这周会改变什么？","下周最重要的三件事是什么？","下周你想停止做什么？","下周想开始做什么？","给自己的一句话鼓励是什么？"];
+    let weeklyStep = 0, weeklyAnswers = [];
+    function startWeeklyReview() { weeklyStep = 0; weeklyAnswers = []; updateWeeklyQuestion(); document.getElementById("weekly-start-btn").classList.add("hidden"); document.getElementById("weekly-next-btn").classList.remove("hidden"); document.getElementById("weekly-input").value = ""; document.getElementById("weekly-summary").classList.add("hidden"); }
+    function updateWeeklyQuestion() { document.getElementById("weekly-progress").textContent = "问题 " + (weeklyStep + 1) + " / " + weeklyQuestions.length; document.getElementById("weekly-question").textContent = weeklyQuestions[weeklyStep]; }
+    async function nextWeeklyQuestion() {
+        const answer = document.getElementById("weekly-input").value.trim();
+        weeklyAnswers.push(answer || "(未回答)");
+        document.getElementById("weekly-input").value = "";
+        weeklyStep++;
+        if (weeklyStep >= weeklyQuestions.length) {
+            document.getElementById("weekly-next-btn").classList.add("hidden");
+            document.getElementById("weekly-start-btn").classList.remove("hidden");
+            const btn = document.getElementById("weekly-start-btn"); btn.textContent = "🤖 生成中..."; btn.disabled = true;
+            try {
+                const answersText = weeklyQuestions.map((q, i) => "问题" + (i+1) + ": " + q + "
+回答: " + weeklyAnswers[i]).join("
+
+");
+                const content = await callAI([{ role: "user", content: "我的周回顾回答：
+
+" + answersText + "
+
+生成总结：
+1. 成就亮点
+2. 需要改进的地方
+3. 下周行动重点" }]);
+                document.getElementById("weekly-summary").classList.remove("hidden"); document.getElementById("weekly-result").textContent = content;
+            } catch(e) { document.getElementById("weekly-summary").classList.remove("hidden"); document.getElementById("weekly-result").textContent = "❌ 错误：" + e.message; }
+            btn.textContent = "🚀 开始回顾"; btn.disabled = false;
+        } else { updateWeeklyQuestion(); }
+    }
+
+    async function aiCompressResearch() {
+        const topic = document.getElementById("research-topic").value.trim();
+        const input = document.getElementById("research-input").value.trim();
+        if (!input) { alert("请输入研究内容"); return; }
+        const btn = event.target, outputEl = document.getElementById("research-output"), resultEl = document.getElementById("research-result");
+        btn.disabled = true; btn.textContent = "🤖 压缩中..."; outputEl.classList.add("hidden");
+        try {
+            const content = await callAI([{ role: "user", content: "我研究了" + (topic || "该主题") + "。这是全部内容：
+
+" + input + "
+
+压缩为：
+- 💡 3个最重要的见解
+- ❓ 2个我不理解的问题
+- 🎯 1件我该做的事" }]);
+            outputEl.classList.remove("hidden"); resultEl.textContent = content;
+        } catch(e) { outputEl.classList.remove("hidden"); resultEl.textContent = "❌ 错误：" + e.message; }
+        btn.disabled = false; btn.textContent = "🔬 压缩研究";
+    }
+
+    async function aiClarifyDecision() {
+        const decision = document.getElementById("decision-input").value.trim();
+        const thoughts = document.getElementById("decision-thoughts").value.trim();
+        if (!thoughts) { alert("请输入你的想法"); return; }
+        const btn = event.target, outputEl = document.getElementById("decision-output"), resultEl = document.getElementById("decision-result");
+        btn.disabled = true; btn.textContent = "🤖 分析中..."; outputEl.classList.add("hidden");
+        try {
+            const content = await callAI([{ role: "user", content: "我需要决定：" + (decision || "(未明确)") + "
+
+我的混乱想法：
+" + thoughts + "
+
+帮我：
+1. 区分事实与假设
+2. 识别真正的恐惧
+3. 告诉我需要什么信息才能自信决策" }]);
+            outputEl.classList.remove("hidden"); resultEl.textContent = content;
+        } catch(e) { outputEl.classList.remove("hidden"); resultEl.textContent = "❌ 错误：" + e.message; }
+        btn.disabled = false; btn.textContent = "⚖️ 澄清决策";
+    }
+
+    async function aiProjectBrain() {
+        const projectName = document.getElementById("project-name").value.trim();
+        const input = document.getElementById("project-input").value.trim();
+        if (!input) { alert("请输入项目信息"); return; }
+        const btn = event.target, outputEl = document.getElementById("project-output"), resultEl = document.getElementById("project-result");
+        btn.disabled = true; btn.textContent = "🤖 分析中..."; outputEl.classList.add("hidden");
+        try {
+            const content = await callAI([{ role: "user", content: "我在做项目：" + (projectName || "未命名") + "
+
+掌握的一切：
+" + input + "
+
+建立活文档：
+- 🎯 目标
+- 📍 当前状态
+- 🚧 障碍
+- ➡️ 后续3个行动
+- ❓ 开放问题" }]);
+            outputEl.classList.remove("hidden"); resultEl.textContent = content;
+        } catch(e) { outputEl.classList.remove("hidden"); resultEl.textContent = "❌ 错误：" + e.message; }
+        btn.disabled = false; btn.textContent = "🚀 分析项目";
+    }
+
+    async function aiSynthesizeReading() {
+        const source = document.getElementById("reading-source").value.trim();
+        const input = document.getElementById("reading-input").value.trim();
+        if (!input) { alert("请输入阅读重点"); return; }
+        const btn = event.target, outputEl = document.getElementById("reading-output"), resultEl = document.getElementById("reading-result");
+        btn.disabled = true; btn.textContent = "🤖 分析中..."; outputEl.classList.add("hidden");
+        try {
+            const content = await callAI([{ role: "user", content: "从" + (source || "某书籍/文章") + "划的重点：
+
+" + input + "
+
+别总结我已读的。告诉我：
+- 💡 最重要的单一想法
+- 🔗 它与我可能相信的关联
+- 📅 本周一个应用方式" }]);
+            outputEl.classList.remove("hidden"); resultEl.textContent = content;
+        } catch(e) { outputEl.classList.remove("hidden"); resultEl.textContent = "❌ 错误：" + e.message; }
+        btn.disabled = false; btn.textContent = "📚 综合分析";
+    }
+
+    async function aiIncubateIdea() {
+        const input = document.getElementById("incubator-input").value.trim();
+        if (!input) { alert("请描述想法"); return; }
+        const btn = event.target, outputEl = document.getElementById("incubator-output"), resultEl = document.getElementById("incubator-result");
+        btn.disabled = true; btn.textContent = "🤖 追问中..."; outputEl.classList.add("hidden");
+        try {
+            const content = await callAI([{ role: "user", content: "我有个粗糙想法：
+
+" + input + "
+
+问我5个深度问题——我可能在回避的问题。然后判断：是否值得追进，还是现在就放弃。" }]);
+            outputEl.classList.remove("hidden"); resultEl.textContent = content;
+        } catch(e) { outputEl.classList.remove("hidden"); resultEl.textContent = "❌ 错误：" + e.message; }
+        btn.disabled = false; btn.textContent = "💡 深度追问";
+    }
+
+    async function aiCreateMemoryAnchor() {
+        const concept = document.getElementById("memory-concept").value.trim();
+        const input = document.getElementById("memory-input").value.trim();
+        if (!concept && !input) { alert("请输入概念"); return; }
+        const btn = event.target, outputEl = document.getElementById("memory-output"), resultEl = document.getElementById("memory-result");
+        btn.disabled = true; btn.textContent = "🤖 创建中..."; outputEl.classList.add("hidden");
+        try {
+            const content = await callAI([{ role: "user", content: "我刚学到：" + (concept || "某概念") + "
+
+相关信息：" + (input || "无") + "
+
+帮我永久记住它。创建：
+- ⚡ 一句话总结
+- 🏠 现实例子
+- ❓ 一周后问自己的3个问题" }]);
+            outputEl.classList.remove("hidden"); resultEl.textContent = content;
+        } catch(e) { outputEl.classList.remove("hidden"); resultEl.textContent = "❌ 错误：" + e.message; }
+        btn.disabled = false; btn.textContent = "⚓ 创建记忆锚点";
+    }
+
+    const saved = JSON.parse(localStorage.getItem("ft3")||"{}");
     if(saved.s) sessions=saved.s;
     if(saved.m) mins=saved.m;
     if(saved.d!==new Date().toDateString()) streak=(saved.sk||0)+1;
     else streak=saved.sk||0;
-    document.getElementById('sessions').textContent=sessions;
-    document.getElementById('totalMin').textContent=mins;
-    document.getElementById('streak').textContent=streak;
-    function save(){localStorage.setItem('ft3',JSON.stringify({s:sessions,m:mins,sk:streak,d:new Date().toDateString()}));}
+    document.getElementById("sessions").textContent=sessions;
+    document.getElementById("totalMin").textContent=mins;
+    document.getElementById("streak").textContent=streak;
+    function save(){localStorage.setItem("ft3",JSON.stringify({s:sessions,m:mins,sk:streak,d:new Date().toDateString()}));}
     update();
     </script>
 </body>
