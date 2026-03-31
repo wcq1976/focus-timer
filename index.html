@@ -15,13 +15,13 @@
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 min-h-screen text-white">
-    <div id="apiModal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+    <div id="apiModal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-50 p-4" style="display:none">
         <div class="bg-white rounded-2xl p-6 max-w-md w-full text-gray-800">
             <h2 class="text-xl font-bold mb-2">🔑 设置 MiniMax API Key</h2>
             <p class="text-sm text-gray-500 mb-4">你的API Key仅存储在本地浏览器中</p>
             <input type="password" id="apiKeyInput" placeholder="输入 MiniMax API Key" class="w-full p-3 border rounded-xl mb-3 text-sm">
             <div class="text-xs text-gray-400 mb-4">模型：MiniMax-M2.7</div>
-            <button onclick="saveApiKey()" class="w-full bg-indigo-500 text-white py-3 rounded-xl font-semibold">保存并开始使用</button>
+            <button type="button" onclick="saveApiKey()" class="w-full bg-indigo-500 text-white py-3 rounded-xl font-semibold">保存并开始使用</button>
         </div>
     </div>
 
@@ -31,20 +31,20 @@
                 <h1 class="text-2xl font-bold">🧠 AI 第二大脑</h1>
                 <p class="text-purple-300 text-sm">你的思考伙伴</p>
             </div>
-            <button onclick="showSettings()" class="p-2 rounded-full bg-white/10 hover:bg-white/20">⚙️</button>
+            <button type="button" onclick="showSettings()" class="p-2 rounded-full bg-white/10 hover:bg-white/20">⚙️</button>
         </div>
         <div class="flex gap-2 overflow-x-auto pb-2">
-            <button onclick="switchTab('timer')" class="tab-btn tab-active px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" data-tab="timer">🍅 番茄钟</button>
-            <button onclick="switchTab('dump')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white/10" data-tab="dump">1️⃣ 大脑转储</button>
-            <button onclick="switchTab('meeting')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white/10" data-tab="meeting">2️⃣ 会议总结</button>
-            <button onclick="switchTab('connector')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white/10" data-tab="connector">3️⃣ 想法连接</button>
-            <button onclick="switchTab('weekly')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white/10" data-tab="weekly">4️⃣ 周回顾</button>
-            <button onclick="switchTab('research')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white/10" data-tab="research">5️⃣ 研究压缩</button>
-            <button onclick="switchTab('decision')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white/10" data-tab="decision">6️⃣ 决策澄清</button>
-            <button onclick="switchTab('project')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white/10" data-tab="project">7️⃣ 项目大脑</button>
-            <button onclick="switchTab('reading')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white/10" data-tab="reading">8️⃣ 阅读综合</button>
-            <button onclick="switchTab('incubator')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white/10" data-tab="incubator">9️⃣ 想法孵化</button>
-            <button onclick="switchTab('memory')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white/10" data-tab="memory">🔟 记忆锚点</button>
+            <button type="button" onclick="switchTab('timer')" class="tab-btn tab-active px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap" data-tab="timer">🍅 番茄钟</button>
+            <button type="button" onclick="switchTab('dump')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white/10" data-tab="dump">1️⃣ 大脑转储</button>
+            <button type="button" onclick="switchTab('meeting')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white/10" data-tab="meeting">2️⃣ 会议总结</button>
+            <button type="button" onclick="switchTab('connector')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white/10" data-tab="connector">3️⃣ 想法连接</button>
+            <button type="button" onclick="switchTab('weekly')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white/10" data-tab="weekly">4️⃣ 周回顾</button>
+            <button type="button" onclick="switchTab('research')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white/10" data-tab="research">5️⃣ 研究压缩</button>
+            <button type="button" onclick="switchTab('decision')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white/10" data-tab="decision">6️⃣ 决策澄清</button>
+            <button type="button" onclick="switchTab('project')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white/10" data-tab="project">7️⃣ 项目大脑</button>
+            <button type="button" onclick="switchTab('reading')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white/10" data-tab="reading">8️⃣ 阅读综合</button>
+            <button type="button" onclick="switchTab('incubator')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white/10" data-tab="incubator">9️⃣ 想法孵化</button>
+            <button type="button" onclick="switchTab('memory')" class="tab-btn px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-white/10" data-tab="memory">🔟 记忆锚点</button>
         </div>
     </div>
 
@@ -64,14 +64,14 @@
                     </div>
                 </div>
                 <div class="flex justify-center gap-3">
-                    <button id="startBtn" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-3 rounded-full font-bold shadow-lg">开始</button>
-                    <button id="pauseBtn" class="bg-yellow-500 text-white px-6 py-3 rounded-full font-bold shadow-lg hidden">⏸</button>
-                    <button id="resetBtn" class="bg-white/20 px-4 py-3 rounded-full">🔄</button>
+                    <button type="button" id="startBtn" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-3 rounded-full font-bold shadow-lg">开始</button>
+                    <button type="button" id="pauseBtn" class="bg-yellow-500 text-white px-6 py-3 rounded-full font-bold shadow-lg hidden">⏸</button>
+                    <button type="button" id="resetBtn" class="bg-white/20 px-4 py-3 rounded-full">🔄</button>
                 </div>
                 <div class="flex justify-center gap-2 mt-4">
-                    <button onclick="setDur(15)" class="px-3 py-1 rounded-full bg-white/20 text-xs">15分</button>
-                    <button onclick="setDur(25)" class="px-3 py-1 rounded-full bg-purple-500 font-bold text-xs">25分</button>
-                    <button onclick="setDur(45)" class="px-3 py-1 rounded-full bg-white/20 text-xs">45分</button>
+                    <button type="button" onclick="setDur(15)" class="px-3 py-1 rounded-full bg-white/20 text-xs">15分</button>
+                    <button type="button" onclick="setDur(25)" class="px-3 py-1 rounded-full bg-purple-500 font-bold text-xs">25分</button>
+                    <button type="button" onclick="setDur(45)" class="px-3 py-1 rounded-full bg-white/20 text-xs">45分</button>
                 </div>
             </div>
             <div class="grid grid-cols-3 gap-2 mt-4">
@@ -93,7 +93,7 @@
             <div class="bg-white/10 backdrop-blur rounded-2xl p-4 mt-4">
                 <h3 class="font-bold text-purple-300 mb-3">📈 AI 复盘</h3>
                 <div id="review" class="text-sm text-gray-300 min-h-[40px]">完成专注后来看复盘~</div>
-                <button onclick="aiReview()" class="w-full mt-2 bg-white/20 text-white py-2 rounded-xl text-sm">📝 生成复盘</button>
+                <button type="button" onclick="aiReview()" class="w-full mt-2 bg-white/20 text-white py-2 rounded-xl text-sm">📝 生成复盘</button>
             </div>
         </div>
 
@@ -101,7 +101,7 @@
             <div class="bg-white/10 backdrop-blur rounded-2xl p-5">
                 <div class="flex items-center gap-3 mb-4"><span class="text-3xl">🧠</span><div><h2 class="font-bold text-lg">大脑转储处理器</h2><p class="text-xs text-gray-400">把脑中一切倾倒出来，AI帮你分类整理</p></div></div>
                 <textarea id="dump-input" rows="6" placeholder="把脑子里的一切都写下来——想法、任务、担忧、碎片化思考。不要判断或过滤。" class="w-full p-4 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400"></textarea>
-                <button onclick="aiBrainDump()" class="w-full mt-3 ai-btn text-white py-3 rounded-xl font-semibold text-sm">🧠 开始转储</button>
+                <button type="button" onclick="aiBrainDump()" class="w-full mt-3 ai-btn text-white py-3 rounded-xl font-semibold text-sm">🧠 开始转储</button>
                 <div id="dump-output" class="mt-4 p-4 bg-white/5 rounded-xl hidden"><div id="dump-result" class="text-sm whitespace-pre-wrap"></div></div>
             </div>
         </div>
@@ -110,7 +110,7 @@
             <div class="bg-white/10 backdrop-blur rounded-2xl p-5">
                 <div class="flex items-center gap-3 mb-4"><span class="text-3xl">📝</span><div><h2 class="font-bold text-lg">会议总结器</h2><p class="text-xs text-gray-400">提取关键决策、负责人和开放问题</p></div></div>
                 <textarea id="meeting-input" rows="6" placeholder="粘贴会议原始笔记..." class="w-full p-4 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400"></textarea>
-                <button onclick="aiMeetingSummary()" class="w-full mt-3 ai-btn text-white py-3 rounded-xl font-semibold text-sm">📝 生成总结</button>
+                <button type="button" onclick="aiMeetingSummary()" class="w-full mt-3 ai-btn text-white py-3 rounded-xl font-semibold text-sm">📝 生成总结</button>
                 <div id="meeting-output" class="mt-4 p-4 bg-white/5 rounded-xl hidden"><div id="meeting-result" class="text-sm whitespace-pre-wrap"></div></div>
             </div>
         </div>
@@ -121,7 +121,7 @@
                 <textarea id="idea1-input" rows="2" placeholder="想法 1..." class="w-full p-3 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400 mb-2"></textarea>
                 <textarea id="idea2-input" rows="2" placeholder="想法 2..." class="w-full p-3 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400 mb-2"></textarea>
                 <textarea id="idea3-input" rows="2" placeholder="想法 3..." class="w-full p-3 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400"></textarea>
-                <button onclick="aiConnectIdeas()" class="w-full mt-3 ai-btn text-white py-3 rounded-xl font-semibold text-sm">🔗 寻找联系</button>
+                <button type="button" onclick="aiConnectIdeas()" class="w-full mt-3 ai-btn text-white py-3 rounded-xl font-semibold text-sm">🔗 寻找联系</button>
                 <div id="connector-output" class="mt-4 p-4 bg-white/5 rounded-xl hidden"><div id="connector-result" class="text-sm whitespace-pre-wrap"></div></div>
             </div>
         </div>
@@ -145,7 +145,7 @@
                 <div class="flex items-center gap-3 mb-4"><span class="text-3xl">🔬</span><div><h2 class="font-bold text-lg">研究压缩器</h2><p class="text-xs text-gray-400">把大量研究压缩为精华</p></div></div>
                 <input id="research-topic" type="text" placeholder="研究主题..." class="w-full p-3 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400 mb-2">
                 <textarea id="research-input" rows="6" placeholder="粘贴原始笔记/链接/重点..." class="w-full p-4 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400"></textarea>
-                <button onclick="aiCompressResearch()" class="w-full mt-3 ai-btn text-white py-3 rounded-xl font-semibold text-sm">🔬 压缩研究</button>
+                <button type="button" onclick="aiCompressResearch()" class="w-full mt-3 ai-btn text-white py-3 rounded-xl font-semibold text-sm">🔬 压缩研究</button>
                 <div id="research-output" class="mt-4 p-4 bg-white/5 rounded-xl hidden"><div id="research-result" class="text-sm whitespace-pre-wrap"></div></div>
             </div>
         </div>
@@ -155,7 +155,7 @@
                 <div class="flex items-center gap-3 mb-4"><span class="text-3xl">⚖️</span><div><h2 class="font-bold text-lg">决策澄清器</h2><p class="text-xs text-gray-400">区分事实与假设，明确恐惧与需求</p></div></div>
                 <input id="decision-input" type="text" placeholder="我需要决定..." class="w-full p-3 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400 mb-3">
                 <textarea id="decision-thoughts" rows="4" placeholder="把所有混乱的想法写下来..." class="w-full p-4 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400"></textarea>
-                <button onclick="aiClarifyDecision()" class="w-full mt-3 ai-btn text-white py-3 rounded-xl font-semibold text-sm">⚖️ 澄清决策</button>
+                <button type="button" onclick="aiClarifyDecision()" class="w-full mt-3 ai-btn text-white py-3 rounded-xl font-semibold text-sm">⚖️ 澄清决策</button>
                 <div id="decision-output" class="mt-4 p-4 bg-white/5 rounded-xl hidden"><div id="decision-result" class="text-sm whitespace-pre-wrap"></div></div>
             </div>
         </div>
@@ -165,7 +165,7 @@
                 <div class="flex items-center gap-3 mb-4"><span class="text-3xl">🚀</span><div><h2 class="font-bold text-lg">项目大脑</h2><p class="text-xs text-gray-400">建立活文档</p></div></div>
                 <input id="project-name" type="text" placeholder="项目名称..." class="w-full p-3 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400 mb-2">
                 <textarea id="project-input" rows="6" placeholder="目前掌握的一切..." class="w-full p-4 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400"></textarea>
-                <button onclick="aiProjectBrain()" class="w-full mt-3 ai-btn text-white py-3 rounded-xl font-semibold text-sm">🚀 分析项目</button>
+                <button type="button" onclick="aiProjectBrain()" class="w-full mt-3 ai-btn text-white py-3 rounded-xl font-semibold text-sm">🚀 分析项目</button>
                 <div id="project-output" class="mt-4 p-4 bg-white/5 rounded-xl hidden"><div id="project-result" class="text-sm whitespace-pre-wrap"></div></div>
             </div>
         </div>
@@ -175,7 +175,7 @@
                 <div class="flex items-center gap-3 mb-4"><span class="text-3xl">📚</span><div><h2 class="font-bold text-lg">阅读综合器</h2><p class="text-xs text-gray-400">从重点中提取洞见</p></div></div>
                 <input id="reading-source" type="text" placeholder="书籍/文章名称..." class="w-full p-3 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400 mb-2">
                 <textarea id="reading-input" rows="6" placeholder="粘贴重点..." class="w-full p-4 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400"></textarea>
-                <button onclick="aiSynthesizeReading()" class="w-full mt-3 ai-btn text-white py-3 rounded-xl font-semibold text-sm">📚 综合分析</button>
+                <button type="button" onclick="aiSynthesizeReading()" class="w-full mt-3 ai-btn text-white py-3 rounded-xl font-semibold text-sm">📚 综合分析</button>
                 <div id="reading-output" class="mt-4 p-4 bg-white/5 rounded-xl hidden"><div id="reading-result" class="text-sm whitespace-pre-wrap"></div></div>
             </div>
         </div>
@@ -184,7 +184,7 @@
             <div class="bg-white/10 backdrop-blur rounded-2xl p-5">
                 <div class="flex items-center gap-3 mb-4"><span class="text-3xl">💡</span><div><h2 class="font-bold text-lg">想法孵化器</h2><p class="text-xs text-gray-400">深度追问，判断是否值得追进</p></div></div>
                 <textarea id="incubator-input" rows="4" placeholder="描述你的粗糙想法..." class="w-full p-4 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400"></textarea>
-                <button onclick="aiIncubateIdea()" class="w-full mt-3 ai-btn text-white py-3 rounded-xl font-semibold text-sm">💡 深度追问</button>
+                <button type="button" onclick="aiIncubateIdea()" class="w-full mt-3 ai-btn text-white py-3 rounded-xl font-semibold text-sm">💡 深度追问</button>
                 <div id="incubator-output" class="mt-4 p-4 bg-white/5 rounded-xl hidden"><div id="incubator-result" class="text-sm whitespace-pre-wrap"></div></div>
             </div>
         </div>
@@ -194,7 +194,7 @@
                 <div class="flex items-center gap-3 mb-4"><span class="text-3xl">⚓</span><div><h2 class="font-bold text-lg">记忆锚点</h2><p class="text-xs text-gray-400">永久记住学到的概念</p></div></div>
                 <input id="memory-concept" type="text" placeholder="学到的概念/技能/洞见..." class="w-full p-3 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400 mb-3">
                 <textarea id="memory-input" rows="4" placeholder="关于它的笔记..." class="w-full p-4 bg-white/10 rounded-xl text-sm border-0 text-white placeholder-gray-400"></textarea>
-                <button onclick="aiCreateMemoryAnchor()" class="w-full mt-3 ai-btn text-white py-3 rounded-xl font-semibold text-sm">⚓ 创建记忆锚点</button>
+                <button type="button" onclick="aiCreateMemoryAnchor()" class="w-full mt-3 ai-btn text-white py-3 rounded-xl font-semibold text-sm">⚓ 创建记忆锚点</button>
                 <div id="memory-output" class="mt-4 p-4 bg-white/5 rounded-xl hidden"><div id="memory-result" class="text-sm whitespace-pre-wrap"></div></div>
             </div>
         </div>
@@ -205,7 +205,10 @@
     let API_KEY = localStorage.getItem("minimax_api_key") || "";
     const MODEL = "MiniMax-M2.7";
 
-    if (!API_KEY) document.getElementById("apiModal").classList.remove("hidden");
+    if (!API_KEY) {
+        document.getElementById("apiModal").classList.remove("hidden");
+        document.getElementById("apiModal").style.display = "flex";
+    }
 
     function saveApiKey() {
         const key = document.getElementById("apiKeyInput").value.trim();
@@ -213,15 +216,21 @@
         API_KEY = key;
         localStorage.setItem("minimax_api_key", key);
         document.getElementById("apiModal").classList.add("hidden");
+        document.getElementById("apiModal").style.display = "none";
     }
 
     function showSettings() {
         document.getElementById("apiKeyInput").value = API_KEY;
         document.getElementById("apiModal").classList.remove("hidden");
+        document.getElementById("apiModal").style.display = "flex";
     }
 
     async function callAI(messages) {
-        if (!API_KEY) { document.getElementById("apiModal").classList.remove("hidden"); throw new Error("需要设置 API Key"); }
+        if (!API_KEY) {
+            document.getElementById("apiModal").classList.remove("hidden");
+            document.getElementById("apiModal").style.display = "flex";
+            throw new Error("需要设置 API Key");
+        }
         const res = await fetch(API_URL, {
             method: "POST",
             headers: { "Authorization": "Bearer " + API_KEY, "Content-Type": "application/json" },
