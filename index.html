@@ -353,7 +353,7 @@
         aiMsg.textContent = "正在分析...";
         aiMsg.classList.remove("hidden");
 
-        callAI([{ role: "user", content: "把「" + txt + "」拆成3-5个小任务，直接返回JSON数组格式["任务1","任务2","任务3"]，不要其他文字" }])
+        callAI([{ role: "user", content: "把「" + txt + "」拆成3-5个小任务，直接返回JSON数组格式，请只返回JSON数组，不要其他文字" }])
             .then(function(content) {
                 var match = content.match(/[.*]/s);
                 if (match) {
@@ -410,16 +410,16 @@
         btn.disabled = true;
         btn.textContent = "🤖 处理中...";
         outputEl.classList.add("hidden");
-        callAI([{ role: "user", content: "以下是我脑子里的所有想法：
+        callAI([{ role: "user", content: `以下是我脑子里的所有想法：
 
-" + input + "
+${input}
 
 请分类为：
 1. 🔴 需要立即行动的
 2. 🟡 需要深思的
 3. 🟢 可以完全放下的
 
-用【行动】【思考】【放下】标记每条。" }])
+用【行动】【思考】【放下】标记每条。` }])
             .then(function(content) { outputEl.classList.remove("hidden"); resultEl.textContent = content; })
             .catch(function(e) { outputEl.classList.remove("hidden"); resultEl.textContent = "❌ 错误：" + e.message; })
             .finally(function() { btn.disabled = false; btn.textContent = "🧠 开始转储"; });
@@ -435,9 +435,9 @@
         btn.disabled = true;
         btn.textContent = "🤖 处理中...";
         outputEl.classList.add("hidden");
-        callAI([{ role: "user", content: "这是我的会议原始笔记：
+        callAI([{ role: "user", content: `这是我的会议原始笔记：
 
-" + input + "
+${input}
 
 请提取：
 - ✅ 关键决策
@@ -445,7 +445,7 @@
 - ❓ 开放问题
 - 📌 易遗忘事项
 
-格式化以便粘贴到Notion。" }])
+格式化以便粘贴到Notion。` }])
             .then(function(content) { outputEl.classList.remove("hidden"); resultEl.textContent = content; })
             .catch(function(e) { outputEl.classList.remove("hidden"); resultEl.textContent = "❌ 错误：" + e.message; })
             .finally(function() { btn.disabled = false; btn.textContent = "📝 生成总结"; });
@@ -463,13 +463,13 @@
         btn.disabled = true;
         btn.textContent = "🤖 分析中...";
         outputEl.classList.add("hidden");
-        callAI([{ role: "user", content: "我思考这几个想法：
+        callAI([{ role: "user", content: `我思考这几个想法：
 
-想法1：" + idea1 + "
-想法2：" + idea2 + "
-想法3：" + idea3 + "
+想法1：${idea1}
+想法2：${idea2}
+想法3：${idea3}
 
-找出隐藏联系，告诉我是否指向更大洞见。" }])
+找出隐藏联系，告诉我是否指向更大洞见。` }])
             .then(function(content) { outputEl.classList.remove("hidden"); resultEl.textContent = content; })
             .catch(function(e) { outputEl.classList.remove("hidden"); resultEl.textContent = "❌ 错误：" + e.message; })
             .finally(function() { btn.disabled = false; btn.textContent = "🔗 寻找联系"; });
@@ -508,18 +508,18 @@
             startBtn.disabled = true;
             var answersText = "";
             for (var i = 0; i < weeklyQuestions.length; i++) {
-                answersText += "问题" + (i + 1) + ": " + weeklyQuestions[i] + "
-回答: " + weeklyAnswers[i] + "
+                answersText += `问题${i + 1}: ${weeklyQuestions[i]}
+回答: ${weeklyAnswers[i]}
 
-";
+`;
             }
-            callAI([{ role: "user", content: "我的周回顾回答：
+            callAI([{ role: "user", content: `我的周回顾回答：
 
-" + answersText + "
+${answersText}
 生成总结：
 1. 成就亮点
 2. 需要改进的地方
-3. 下周行动重点" }])
+3. 下周行动重点` }])
                 .then(function(content) {
                     document.getElementById("weekly-summary").classList.remove("hidden");
                     document.getElementById("weekly-result").textContent = content;
@@ -548,14 +548,14 @@
         btn.disabled = true;
         btn.textContent = "🤖 压缩中...";
         outputEl.classList.add("hidden");
-        callAI([{ role: "user", content: "我研究了" + (topic || "该主题") + "。这是全部内容：
+        callAI([{ role: "user", content: `我研究了${topic || "该主题"}。这是全部内容：
 
-" + input + "
+${input}
 
 压缩为：
 - 💡 3个最重要的见解
 - ❓ 2个我不理解的问题
-- 🎯 1件我该做的事" }])
+- 🎯 1件我该做的事` }])
             .then(function(content) { outputEl.classList.remove("hidden"); resultEl.textContent = content; })
             .catch(function(e) { outputEl.classList.remove("hidden"); resultEl.textContent = "❌ 错误：" + e.message; })
             .finally(function() { btn.disabled = false; btn.textContent = "🔬 压缩研究"; });
@@ -572,15 +572,15 @@
         btn.disabled = true;
         btn.textContent = "🤖 分析中...";
         outputEl.classList.add("hidden");
-        callAI([{ role: "user", content: "我需要决定：" + (decision || "(未明确)") + "
+        callAI([{ role: "user", content: `我需要决定：${decision || "(未明确)"}
 
 我的混乱想法：
-" + thoughts + "
+${thoughts}
 
 帮我：
 1. 区分事实与假设
 2. 识别真正的恐惧
-3. 告诉我需要什么信息才能自信决策" }])
+3. 告诉我需要什么信息才能自信决策` }])
             .then(function(content) { outputEl.classList.remove("hidden"); resultEl.textContent = content; })
             .catch(function(e) { outputEl.classList.remove("hidden"); resultEl.textContent = "❌ 错误：" + e.message; })
             .finally(function() { btn.disabled = false; btn.textContent = "⚖️ 澄清决策"; });
@@ -597,17 +597,17 @@
         btn.disabled = true;
         btn.textContent = "🤖 分析中...";
         outputEl.classList.add("hidden");
-        callAI([{ role: "user", content: "我在做项目：" + (projectName || "未命名") + "
+        callAI([{ role: "user", content: `我在做项目：${projectName || "未命名"}
 
 掌握的一切：
-" + input + "
+${input}
 
 建立活文档：
 - 🎯 目标
 - 📍 当前状态
 - 🚧 障碍
 - ➡️ 后续3个行动
-- ❓ 开放问题" }])
+- ❓ 开放问题` }])
             .then(function(content) { outputEl.classList.remove("hidden"); resultEl.textContent = content; })
             .catch(function(e) { outputEl.classList.remove("hidden"); resultEl.textContent = "❌ 错误：" + e.message; })
             .finally(function() { btn.disabled = false; btn.textContent = "🚀 分析项目"; });
@@ -624,14 +624,14 @@
         btn.disabled = true;
         btn.textContent = "🤖 分析中...";
         outputEl.classList.add("hidden");
-        callAI([{ role: "user", content: "从" + (source || "某书籍/文章") + "划的重点：
+        callAI([{ role: "user", content: `从${source || "某书籍/文章"}划的重点：
 
-" + input + "
+${input}
 
 别总结我已读的。告诉我：
 - 💡 最重要的单一想法
 - 🔗 它与我可能相信的关联
-- 📅 本周一个应用方式" }])
+- 📅 本周一个应用方式` }])
             .then(function(content) { outputEl.classList.remove("hidden"); resultEl.textContent = content; })
             .catch(function(e) { outputEl.classList.remove("hidden"); resultEl.textContent = "❌ 错误：" + e.message; })
             .finally(function() { btn.disabled = false; btn.textContent = "📚 综合分析"; });
@@ -647,11 +647,11 @@
         btn.disabled = true;
         btn.textContent = "🤖 追问中...";
         outputEl.classList.add("hidden");
-        callAI([{ role: "user", content: "我有个粗糙想法：
+        callAI([{ role: "user", content: `我有个粗糙想法：
 
-" + input + "
+${input}
 
-问我5个深度问题——我可能在回避的问题。然后判断：是否值得追进，还是现在就放弃。" }])
+问我5个深度问题——我可能在回避的问题。然后判断：是否值得追进，还是现在就放弃。` }])
             .then(function(content) { outputEl.classList.remove("hidden"); resultEl.textContent = content; })
             .catch(function(e) { outputEl.classList.remove("hidden"); resultEl.textContent = "❌ 错误：" + e.message; })
             .finally(function() { btn.disabled = false; btn.textContent = "💡 深度追问"; });
@@ -668,14 +668,14 @@
         btn.disabled = true;
         btn.textContent = "🤖 创建中...";
         outputEl.classList.add("hidden");
-        callAI([{ role: "user", content: "我刚学到：" + (concept || "某概念") + "
+        callAI([{ role: "user", content: `我刚学到：${concept || "某概念"}
 
-相关信息：" + (input || "无") + "
+相关信息：${input || "无"}
 
 帮我永久记住它。创建：
 - ⚡ 一句话总结
 - 🏠 现实例子
-- ❓ 一周后问自己的3个问题" }])
+- ❓ 一周后问自己的3个问题` }])
             .then(function(content) { outputEl.classList.remove("hidden"); resultEl.textContent = content; })
             .catch(function(e) { outputEl.classList.remove("hidden"); resultEl.textContent = "❌ 错误：" + e.message; })
             .finally(function() { btn.disabled = false; btn.textContent = "⚓ 创建记忆锚点"; });
